@@ -5,6 +5,7 @@ const { HomeRouter } = require('./routes/home');
 const { ConfiguratorRouter } = require('./routes/configurator');
 const { orderRouter } = require('./routes/order');
 const { handlebarsHelpers } = require('./utils/handlenars-helpers');
+const { COOKIE_BASES, COOKIE_ADDONS } = require('./data/cookies-data');
 
 class CookieMakerApp {
   constructor() {
@@ -31,8 +32,8 @@ class CookieMakerApp {
   }
 
   _setRoutes() {
-    this.app.use('/', new HomeRouter().router);
-    this.app.use('/configurator', new ConfiguratorRouter().router);
+    this.app.use('/', new HomeRouter(this).router);
+    this.app.use('/configurator', new ConfiguratorRouter(this).router);
     this.app.use('/order', orderRouter);
   }
 
@@ -48,6 +49,33 @@ class CookieMakerApp {
   getAddonsdFromReq(req) {
     const { cookieAddons } = req.cookies;
     return cookieAddons ? JSON.parse(cookieAddons) : [];
+  }
+  getCookieSettings(req) {
+    const { cookieBase: base } = req.cookies;
+
+    const addons = this.getAddonsdFromReq(req);
+
+    const allBases = Object.entries(COOKIE_BASES);
+    const allAddons = Object.entries(COOKIE_ADDONS);
+
+    const sum =
+      (base ? handlebarsHelpers.findPrice(allBases, base) : 0) +
+      addons.reduce((prev, curr) => {
+        return prev + handlebarsHelpers.findPrice(allAddons, curr);
+      }, 0);
+
+    return {
+      //Selected stuff
+      addons,
+      base,
+
+      //Calculations
+      sum,
+
+      //All possibilities
+      allBases,
+      allAddons,
+    };
   }
 }
 
