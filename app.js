@@ -3,7 +3,7 @@ const cookieParser = require('cookie-parser');
 const hbs = require('express-handlebars');
 const { HomeRouter } = require('./routes/home');
 const { ConfiguratorRouter } = require('./routes/configurator');
-const { orderRouter } = require('./routes/order');
+const { OrderRouter } = require('./routes/order');
 const { handlebarsHelpers } = require('./utils/handlenars-helpers');
 const { COOKIE_BASES, COOKIE_ADDONS } = require('./data/cookies-data');
 
@@ -34,7 +34,7 @@ class CookieMakerApp {
   _setRoutes() {
     this.app.use('/', new HomeRouter(this).router);
     this.app.use('/configurator', new ConfiguratorRouter(this).router);
-    this.app.use('/order', orderRouter);
+    this.app.use('/order', new OrderRouter(this).router);
   }
 
   _run() {
